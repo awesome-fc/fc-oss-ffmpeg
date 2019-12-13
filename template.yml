@@ -1,0 +1,102 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Transform: 'Aliyun::Serverless-2018-04-03'
+Resources:
+  FcOssFFmpeg:
+    Type: 'Aliyun::Serverless::Service'
+    Properties:
+      Description: Scenarios that can be solved by OSS + FC
+      Policies: 
+        - AliyunOSSFullAccess
+        - AliyunFCFullAccess
+      InternetAccess: true
+    get_media_meta:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Initializer: index.initializer
+        InitializationTimeout: 30
+        Handler: index.handler
+        Runtime: python3
+        Timeout: 600
+        MemorySize: 512
+        EnvironmentVariables:
+          FFPROBE_BIN_KEY: binary/ffprobe
+          FFPROBE_BUKCET_NAME: fc-hz-demo
+        CodeUri: ./functions/get_multimedia_meta
+    transcode-master:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Initializer: master.initializer
+        InitializationTimeout: 30
+        Handler: master.handler
+        Runtime: python3
+        Timeout: 600
+        MemorySize: 1024
+        EnvironmentVariables:
+          FFMPEG_BIN_KEY: binary/ffmpeg
+          FFMPEG_BUKCET_NAME: fc-hz-demo
+        CodeUri: ./functions/transcode
+    transcode-worker:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Initializer: worker.initializer
+        InitializationTimeout: 30
+        Handler: worker.handler
+        Runtime: python3
+        Timeout: 600
+        MemorySize: 3072
+        EnvironmentVariables:
+          FFMPEG_BIN_KEY: binary/ffmpeg
+          FFMPEG_BUKCET_NAME: fc-hz-demo
+        CodeUri: ./functions/transcode
+    get_duration:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Initializer: index.initializer
+        InitializationTimeout: 30
+        Handler: index.handler
+        Runtime: python3
+        Timeout: 600
+        MemorySize: 512
+        EnvironmentVariables:
+          FFPROBE_BIN_KEY: binary/ffprobe
+          FFPROBE_BUKCET_NAME: fc-hz-demo
+        CodeUri: ./functions/get_duration
+    video_gif:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Initializer: index.initializer
+        InitializationTimeout: 30
+        Handler: index.handler
+        Runtime: python3
+        Timeout: 600
+        MemorySize: 512
+        EnvironmentVariables:
+          FFMPEG_BIN_KEY: binary/ffmpeg
+          FFMPEG_BUKCET_NAME: fc-hz-demo
+        CodeUri: ./functions/video_gif
+    get_sprites:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Initializer: index.initializer
+        InitializationTimeout: 30
+        Handler: index.handler
+        Runtime: python3
+        Timeout: 600
+        MemorySize: 512
+        EnvironmentVariables:
+          FFMPEG_BIN_KEY: binary/ffmpeg
+          FFMPEG_BUKCET_NAME: fc-hz-demo
+        CodeUri: ./functions/get_sprites
+    video_watermark:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Initializer: index.initializer
+        InitializationTimeout: 30
+        Handler: index.handler
+        Runtime: python3
+        Timeout: 600
+        MemorySize: 512
+        EnvironmentVariables:
+          FFMPEG_BIN_KEY: binary/ffmpeg
+          FFMPEG_BUKCET_NAME: fc-hz-demo
+        CodeUri: ./functions/video_watermark
