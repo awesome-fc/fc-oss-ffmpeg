@@ -68,3 +68,11 @@ Resources:
         Timeout: 600
         MemorySize: 512
         CodeUri: ./functions/video_watermark
+    audio_convert:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Handler: index.handler
+        Runtime: python3
+        Timeout: 600
+        MemorySize: 512
+        CodeUri: ./functions/audio_convert

@@ -1,5 +1,10 @@
 ## 应用简介
-OSS + FC 实现音视频的各种自定义处理主题
+
+- [函数计算 FC](https://help.aliyun.com/product/50980.html)：阿里云函数计算是事件驱动的全托管计算服务。通过函数计算，您无需管理服务器等基础设施，只需编写代码并上传。函数计算会为您准备好计算资源，以弹性、可靠的方式运行您的代码，并提供日志查询、性能监控、报警等功能。
+
+- [对象存储 OSS](https://help.aliyun.com/document_detail/31817.html)：阿里云提供的海量、安全、低成本、高可靠的云存储服务
+
+本应用实现的是 OSS + FC 实现音视频的各种自定义处理主题
 
 #### 1. [get_media_meta: 获取音视频 meta](#get_media_meta)
 #### 2. [get_duration: 获取音视频时长](#get_duration)
@@ -7,14 +12,15 @@ OSS + FC 实现音视频的各种自定义处理主题
 #### 4. [get_sprites: 功能强大雪碧图制作函数](#get_sprites)
 #### 5. [video_watermark: 功能强大的视频添加水印功能](#video_watermark)
 #### 6. [video_gif: 功能强大的 video 提取为 gif 函数](#video_gif)
+#### 7. [audio_convert: 音频格式转换器](#audio_convert)
 
-本项目中只是展现了这 6 个示例， FC + FFmpeg 可以实现对 oss 上的音视频进行任意的自定义处理， 欢迎大家提 issue 完善示例。
+本项目中只是展现了这 7 个示例， FC + FFmpeg 可以实现对 oss 上的音视频进行任意的自定义处理， 欢迎大家提 issue 完善示例。
 
 ## 部署
 
-### 准备
+### 准备工作
 
-开通[函数计算](https://fc.console.aliyun.com/) 和[对象存储](https://oss.console.aliyun.com/)
+免费开通[函数计算](https://statistics.functioncompute.com/?title=FcOssFFmpeg&theme=ServerlessVideo&author=rsong&src=article&url=http://fc.console.aliyun.com) 和[对象存储](https://oss.console.aliyun.com/)
 
 ### 安装 Fun 工具
 
@@ -26,10 +32,12 @@ OSS + FC 实现音视频的各种自定义处理主题
 	$ npm install @alicloud/fun -g
 	```
 
+- 安装完成后， 执行 `fun config`，按照提示完成 fun 的配置，参考：[getting_started](https://github.com/alibaba/funcraft/blob/master/docs/usage/getting_started-zh.md)
+
 ### Clone 工程，在工程目录上，命令行输入 `fun deploy` 执行
 
 ```
-$ git clone https://github.com/awesome-fc/fc-wordpress.git
+$ git clone https://github.com/awesome-fc/fc-oss-ffmpeg.git
 $ cd fc-oss-ffmpeg
 $ fun deploy
 ```
@@ -267,7 +275,7 @@ print(resp)
 }
 ```
 
-其中 filter_complex_args 优先级 > vf_args
+其中优先级: filter_complex_args > vf_args，即有 filter_complex_args 参数的时候，忽视 vf_args 参数
 
 **vf_args:**
 
@@ -359,6 +367,55 @@ resp = client.invoke_function("FcOssFFmpeg", "video_gif", payload=json.dumps(
     "bucket_name" : "test-bucket",
     "object_key" : "a.mp4",
     "output_dir" : "output/",
+})).data
+
+print(resp)
+
+```
+
+<a name="audio_convert"></a>
+## audio_convert: 音频格式转换器
+
+**event format:**
+
+``` json
+{
+    "bucket_name" : "test-bucket",
+    "object_key" : "a.mp3",
+    "output_dir" : "output/",
+    "dst_type": ".wav",
+    "ac": 1,
+    "ar": 4000
+}
+```
+
+- ac 可选，声道数
+
+- ar 可选，采样率
+
+**response:**
+
+`ok`
+
+生成目标格式的音频文件，保存到 bucket 的该目录( `output_dir + "/" + dir(object_key)`  )中
+
+**python sdk 调用函数示例:**
+
+```python
+# -*- coding: utf-8 -*-
+import fc2
+import json
+
+client = fc2.Client(endpoint="http://1123456.cn-hangzhou.fc.aliyuncs.com",accessKeyID="xxxxxxxx",accessKeySecret="yyyyyy")
+
+resp = client.invoke_function("FcOssFFmpeg", "audio_convert", payload=json.dumps(
+{
+    "bucket_name" : "test-bucket",
+    "object_key" : "a.mp3",
+    "output_dir" : "output/",
+    "dst_type": ".wav",
+    "ac": 1,
+    "ar": 8000,
 })).data
 
 print(resp)
