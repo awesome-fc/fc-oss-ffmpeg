@@ -34,9 +34,6 @@ LOGGER = logging.getLogger()
 
 '''
 
-FFMPEG_BUKCET_NAME = os.environ["FFMPEG_BUKCET_NAME"]
-FFMPEG_BIN_KEY = os.environ["FFMPEG_BIN_KEY"]
-
 # a decorator for print the excute time of a function
 def print_excute_time(func):
     def wrapper(*args, **kwargs):
@@ -46,21 +43,6 @@ def print_excute_time(func):
                     (func.__name__, time.time() - local_time))
         return ret
     return wrapper
-
-
-@print_excute_time
-def initializer(context):
-    if not os.path.exists('/tmp/ffmpeg'):
-        creds = context.credentials
-        auth = oss2.StsAuth(creds.accessKeyId,
-                            creds.accessKeySecret, creds.securityToken)
-        oss_client = oss2.Bucket(
-            auth, 'oss-%s-internal.aliyuncs.com' % context.region, FFMPEG_BUKCET_NAME)
-        oss_client.get_object_to_file(FFMPEG_BIN_KEY, '/tmp/ffmpeg')
-        os.system("chmod 777 /tmp/ffmpeg")
-
-    return "succ"
-
 
 def get_fileNameExt(filename):
     (fileDir, tempfilename) = os.path.split(filename)
@@ -99,7 +81,7 @@ def handler(event, context):
 
     # split video to pieces
     try:
-        subprocess.call(["/tmp/ffmpeg", "-y",  "-i",  input_path, "-c", "copy", "-f", "segment", "-segment_time", segment_time_seconds, "-reset_timestamps", "1",
+        subprocess.call(["/code/ffmpeg", "-y",  "-i",  input_path, "-c", "copy", "-f", "segment", "-segment_time", segment_time_seconds, "-reset_timestamps", "1",
                           "/tmp/split_" + shortname + '_piece_%02d' + extension])
     except subprocess.CalledProcessError as exc:
         LOGGER.error('split video to pieces returncode:{}'.format(exc.returncode))
@@ -173,7 +155,7 @@ def handler(event, context):
     merged_filepath = os.path.join("/tmp/", merged_filename)
     
     try:
-        subprocess.call(["/tmp/ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i",
+        subprocess.call(["/code/ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i",
                          segs_filepath, "-c", "copy", "-fflags", "+genpts", merged_filepath])
     except subprocess.CalledProcessError as exc:
         LOGGER.error('merge split pieces returncode:{}'.format(exc.returncode))

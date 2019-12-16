@@ -45,9 +45,6 @@ color: 可选，雪碧图背景颜色，默认黑色， https://ffmpeg.org/ffmpe
 dst_type: 可选，生成的雪碧图图片格式，默认为 png，主要为 png 或者 jpg， https://ffmpeg.org/ffmpeg-all.html#image2-1
 '''
 
-FFMPEG_BUKCET_NAME = os.environ["FFMPEG_BUKCET_NAME"]
-FFMPEG_BIN_KEY = os.environ["FFMPEG_BIN_KEY"]
-
 # a decorator for print the excute time of a function
 def print_excute_time(func):
     def wrapper(*args, **kwargs):
@@ -57,20 +54,6 @@ def print_excute_time(func):
                     (func.__name__, time.time() - local_time))
         return ret
     return wrapper
-
-@print_excute_time
-def initializer(context):
-    if not os.path.exists('/tmp/ffmpeg'):
-        creds = context.credentials
-        auth = oss2.StsAuth(creds.accessKeyId,
-                            creds.accessKeySecret, creds.securityToken)
-        oss_client = oss2.Bucket(
-            auth, 'oss-%s-internal.aliyuncs.com' % context.region, FFMPEG_BUKCET_NAME)
-        oss_client.get_object_to_file(FFMPEG_BIN_KEY, '/tmp/ffmpeg')
-        os.system("chmod 777 /tmp/ffmpeg")
-
-    return "succ"
-
 
 def get_fileNameExt(filename):
     (fileDir, tempfilename) = os.path.split(filename)
@@ -108,13 +91,13 @@ def handler(event, context):
     input_path = oss_client.sign_url('GET', object_key, 15 * 60)
     fileDir, shortname, extension = get_fileNameExt(object_key)
 
-    cmd = ['/tmp/ffmpeg', '-ss', ss, '-itsoffset', itsoffset, '-y', '-i', input_path,
+    cmd = ['/code/ffmpeg', '-ss', ss, '-itsoffset', itsoffset, '-y', '-i', input_path,
            '-f', 'image2', '-vf', "fps=1/{0},scale={1},tile={2}:padding={3}:color={4}".format(
                interval, scale, tile, padding, color),
            '/tmp/{0}%d.{1}'.format(shortname, dst_type)]
 
     if t:
-        cmd = ['/tmp/ffmpeg', '-ss', ss, '-itsoffset', itsoffset, '-t', t, '-y', '-i', input_path,
+        cmd = ['/code/ffmpeg', '-ss', ss, '-itsoffset', itsoffset, '-t', t, '-y', '-i', input_path,
                '-f', 'image2', '-vf', "fps=1/{0},scale={1},tile={2}:padding={3}:color={4}".format(
                    interval, scale, tile, padding, color),
                '/tmp/{0}%d.{1}'.format(shortname, dst_type)]

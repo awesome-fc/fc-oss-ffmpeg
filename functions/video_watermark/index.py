@@ -35,9 +35,6 @@ filter_complex_args: 图片水印, 动态图片gif
 filter_complex_args = "overlay=0:0:1"
 '''
 
-FFMPEG_BUKCET_NAME = os.environ["FFMPEG_BUKCET_NAME"]
-FFMPEG_BIN_KEY = os.environ["FFMPEG_BIN_KEY"]
-
 # a decorator for print the excute time of a function
 def print_excute_time(func):
     def wrapper(*args, **kwargs):
@@ -47,19 +44,6 @@ def print_excute_time(func):
                     (func.__name__, time.time() - local_time))
         return ret
     return wrapper
-
-@print_excute_time
-def initializer(context):
-    if not os.path.exists('/tmp/ffmpeg'):
-        creds = context.credentials
-        auth = oss2.StsAuth(creds.accessKeyId,
-                            creds.accessKeySecret, creds.securityToken)
-        oss_client = oss2.Bucket(
-            auth, 'oss-%s-internal.aliyuncs.com' % context.region, FFMPEG_BUKCET_NAME)
-        oss_client.get_object_to_file(FFMPEG_BIN_KEY, '/tmp/ffmpeg')
-        os.system("chmod 777 /tmp/ffmpeg")
-
-    return "succ"
 
 def get_fileNameExt(filename):
     (fileDir, tempfilename) = os.path.split(filename)
@@ -89,11 +73,11 @@ def handler(event, context):
     fileDir, shortname, extension = get_fileNameExt(object_key)
     dst_video_path = os.path.join("/tmp", "watermark_" + shortname + extension)
     
-    cmd = ["/tmp/ffmpeg", "-y", "-i", input_path,
+    cmd = ["/code/ffmpeg", "-y", "-i", input_path,
            "-vf", vf_args, dst_video_path]
     
     if filter_complex_args: # gif
-        cmd = ["/tmp/ffmpeg", "-y", "-i", input_path, "-ignore_loop", "0", 
+        cmd = ["/code/ffmpeg", "-y", "-i", input_path, "-ignore_loop", "0",
                "-i", "/code/logo.gif", "-filter_complex", filter_complex_args, dst_video_path]
     
     LOGGER.info("cmd = {}".format(" ".join(cmd)))

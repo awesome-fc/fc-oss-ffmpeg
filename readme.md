@@ -1,5 +1,5 @@
 ## 应用简介
-OSS + FC 实现视频的各种自定义处理主题
+OSS + FC 实现音视频的各种自定义处理主题
 
 #### 1. [get_media_meta: 获取音视频 meta](#get_media_meta)
 #### 2. [get_duration: 获取音视频时长](#get_duration)
@@ -8,7 +8,7 @@ OSS + FC 实现视频的各种自定义处理主题
 #### 5. [video_watermark: 功能强大的视频添加水印功能](#video_watermark)
 #### 6. [video_gif: 功能强大的 video 提取为 gif 函数](#video_gif)
 
-本项目中只是展现了这 6 个示例， FC + FFmpeg 可以实现对 oss 上的视频进行任意的自定义处理， 欢迎大家提 issue 完善示例。
+本项目中只是展现了这 6 个示例， FC + FFmpeg 可以实现对 oss 上的音视频进行任意的自定义处理， 欢迎大家提 issue 完善示例。
 
 ## 部署
 
@@ -33,19 +33,6 @@ $ git clone https://github.com/awesome-fc/fc-wordpress.git
 $ cd fc-oss-ffmpeg
 $ fun deploy
 ```
-
-**注意事项**
-
-```diff
-- 如果用于测试、生产, 请将先 ffmpeg 和 ffprobe 工具放置在您自己的对应的 region 中 bucket 的 binary/ 目录中， 同时修改下
-- template.yml 中所有 FFPROBE_BUKCET_NAME 和 FFMPEG_BUKCET_NAME 值 （假设您的 bucket 名字为 my-bucket-video, 
-- 您需要的做的事情仅仅将 template.yml 中 FFPROBE_BUKCET_NAME 和 FFMPEG_BUKCET_NAME 的值都改为 my-bucket-video),
-- 然后再执行  fun deploy
-```
-
-> [download ffmpeg](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/binary/ffmpeg)
-
-> [download ffprobe](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/binary/ffprobe)
 
 <a name="get_media_meta"></a>
 ## get_media_meta 获取音视频 meta

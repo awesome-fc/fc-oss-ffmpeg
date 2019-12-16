@@ -28,9 +28,6 @@ vframes  和 duration 可选， 当同时填写的时候， 以 duration 为准
 当都没有填写的时候， 默认整个视频转为gif
 '''
 
-FFMPEG_BUKCET_NAME = os.environ["FFMPEG_BUKCET_NAME"]
-FFMPEG_BIN_KEY = os.environ["FFMPEG_BIN_KEY"]
-
 # a decorator for print the excute time of a function
 def print_excute_time(func):
     def wrapper(*args, **kwargs):
@@ -40,19 +37,6 @@ def print_excute_time(func):
                     (func.__name__, time.time() - local_time))
         return ret
     return wrapper
-
-@print_excute_time
-def initializer(context):
-    if not os.path.exists('/tmp/ffmpeg'):
-        creds = context.credentials
-        auth = oss2.StsAuth(creds.accessKeyId,
-                            creds.accessKeySecret, creds.securityToken)
-        oss_client = oss2.Bucket(
-            auth, 'oss-%s-internal.aliyuncs.com' % context.region, FFMPEG_BUKCET_NAME)
-        oss_client.get_object_to_file(FFMPEG_BIN_KEY, '/tmp/ffmpeg')
-        os.system("chmod 777 /tmp/ffmpeg")
-
-    return "succ"
 
 def get_fileNameExt(filename):
     (fileDir, tempfilename) = os.path.split(filename)
@@ -84,12 +68,15 @@ def handler(event, context):
     fileDir, shortname, extension = get_fileNameExt(object_key)
     gif_path = os.path.join("/tmp", shortname + ".gif")
     
-    cmd = ["/tmp/ffmpeg", "-y",  "-ss", ss, "-accurate_seek", "-i", input_path, "-pix_fmt", "rgb24", gif_path]
+    cmd = ["/code/ffmpeg", "-y",  "-ss", ss, "-accurate_seek",
+           "-i", input_path, "-pix_fmt", "rgb24", gif_path]
     if t:
-        cmd = ["/tmp/ffmpeg", "-y", "-ss", ss, "-t", t,  "-accurate_seek", "-i", input_path, "-pix_fmt", "rgb24", gif_path]
+        cmd = ["/code/ffmpeg", "-y", "-ss", ss, "-t", t,  "-accurate_seek",
+               "-i", input_path, "-pix_fmt", "rgb24", gif_path]
     else:
         if vframes:
-            cmd = ["/tmp/ffmpeg", "-y",  "-ss", ss,  "-accurate_seek", "-i", input_path, "-vframes", vframes, "-y", "-f", "gif", gif_path]
+            cmd = ["/code/ffmpeg", "-y",  "-ss", ss,  "-accurate_seek", "-i",
+                   input_path, "-vframes", vframes, "-y", "-f", "gif", gif_path]
 
     LOGGER.info("cmd = {}".format(" ".join(cmd)))
     try:
