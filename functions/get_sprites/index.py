@@ -101,9 +101,7 @@ def handler(event, context):
                '-f', 'image2', '-vf', "fps=1/{0},scale={1},tile={2}:padding={3}:color={4}".format(
                    interval, scale, tile, padding, color),
                '/tmp/{0}%d.{1}'.format(shortname, dst_type)]
-
-    subprocess.call(["rm", "/tmp/" + shortname + "*"])
-
+    
     LOGGER.info("cmd = {}".format(" ".join(cmd)))
     try:
         subprocess.check_call(cmd)

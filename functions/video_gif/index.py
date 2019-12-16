@@ -92,5 +92,7 @@ def handler(event, context):
 
     LOGGER.info("Uploaded {} to {} ".format(
         gif_path, gif_key))
+    
+    os.remove(gif_path)
 
     return "ok"

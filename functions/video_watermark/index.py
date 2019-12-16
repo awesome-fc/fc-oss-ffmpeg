@@ -92,5 +92,7 @@ def handler(event, context):
     oss_client.put_object_from_file(video_key, dst_video_path)
 
     LOGGER.info("Uploaded {} to {} ".format(dst_video_path, video_key))
+    
+    os.remove(dst_video_path)
 
     return "ok"
