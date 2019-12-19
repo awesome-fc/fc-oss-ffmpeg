@@ -29,7 +29,7 @@ vf_args:
 - 文字水印
 vf_args = "drawtext=fontfile=/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc:text='hello函数计算':x=50:y=50:fontsize=24:fontcolor=red:shadowy=1"
 - 图片水印, 静态图片
-vf_args = "movie=/code/logo.png[watermark];[in][watermark]overlay=10:10:1[out]"
+vf_args = "movie=/code/logo.png[watermark];[in][watermark]overlay=10:10[out]"
 
 filter_complex_args: 图片水印, 动态图片gif
 filter_complex_args = "overlay=0:0:1"

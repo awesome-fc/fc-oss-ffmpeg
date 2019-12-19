@@ -4,7 +4,7 @@
 
 - [对象存储 OSS](https://help.aliyun.com/document_detail/31817.html)：阿里云提供的海量、安全、低成本、高可靠的云存储服务
 
-本应用实现的是 OSS + FC 实现音视频的各种自定义处理主题
+本应用实现的是: 基于函数计算 FC + FFmpeg 实现 Serverless 架构的弹性高可用的高度自定义音视频处理主题
 
 #### 1. [get_media_meta: 获取音视频 meta](#get_media_meta)
 #### 2. [get_duration: 获取音视频时长](#get_duration)
@@ -15,6 +15,75 @@
 #### 7. [audio_convert: 音频格式转换器](#audio_convert)
 
 本项目中只是展现了这 7 个示例， FC + FFmpeg 可以实现对 oss 上的音视频进行任意的自定义处理， 欢迎大家提 issue 完善示例。
+
+## 示例效果显示
+<img src="fc-oss-ffmpeg.gif?raw=true">
+
+## 方案优势
+
+### 成本比较
+
+实验对象：
+
+- 视频是 89s 的 mov 标清短视频: [480P.mov](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/480P.mov)
+
+- 音频为 89s 的 mp3 音频: [480P.mp3](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/480P.mp3)
+
+|  函数   | 内存规格  | 执行时间 | 一次计费(元) | 备注 |
+|  ----  | ----  |  ----  |  ----  | ---- |
+| get_media_meta  | 128M | <100ms  | 0.0000013885 |  |
+| get_duration  | 128M | <200ms  |  0.000002777 |  |
+| audio_convert  | 128M | <400ms  | 0.000005554 | mp3 转 wav |
+| get_sprites  | 256M | <3200ms  | 0.000088864 | 每10秒截图一次， 生成 3*3 的雪碧图 |
+| video_gif  | 128M |  <1000ms | 0.000013885 | 截取30-32秒的视频生成 GIF |
+| video_watermark  | 256M | <4100ms  | 0.000113857 | png水印 |
+
+函数计算每月有很大的免费额度：
+
+- 调用次数：每月前 100 万次函数调用免费。
+
+- 执行时间：每月前 400000(GB*秒) 费用免费。
+
+详情：[函数计算计费](https://help.aliyun.com/document_detail/137980.html)
+
+### 转码
+
+#### 性能
+
+实验视频为是 89s 的 mov 文件 4K 视频: [4K.mov](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/4K.mov)，云服务进行 mov -> mp4 普通转码需要消耗的时间为 188s， 将这个参考时间记为 T
+
+|  视频切片时间   | FC转码耗时 | 性能加速百分比 |
+|  ----  | ----  | ----  |
+|  45s |  160s |  117.5% |
+|  25s |  100s  |  188% |
+|  15s |  70s |  268.6% |
+|  10s |  45s |  417.8% |
+|  5s  |  35s  |  537.1% |
+
+> 性能加速百分比 = T / FC转码耗时
+
+从上表可以看出，设置的视频切片时间越短， 视频转码时间越短， 函数计算可以自动瞬时调度出更多的计算资源来一起完成这个视频的转码, 转码性能优异。
+
+#### 成本
+实验视频为是 89s 的 mov 文件短视频， 测试视频地址：
+[480P.mov](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/480P.mov) [720P.mov](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/720P.mov)  [1080P.mov](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/1080P.mov)  [4K.mov](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/4K.mov)
+
+> 测试命令: `ffmpeg -i test.mov -preset superfast test.mp4`， 函数内存规格设置为 3G
+	
+**格式转换**
+
+
+| 分辨率 | bitrate |  帧率 | FC 转码耗费时间 | FC 转码费用 | 腾#云视频处理费用 | 成本下降百分比 |
+| ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+| 标清 640*480   |  618 kb/s | 24 | 11s | 0.00366564 | 0.032 | 88.5% |
+| 高清 1280*720  |  1120 kb/s | 24 | 31s | 0.01033044 |0.065 | 84.1% |
+| 超清 1920*1080 |  1942 kb/s |  24 | 66s | 0.02199384 | 0.126 | 82.5% |
+| 4K  3840*2160 |  5250 kb/s| 24 | 260s | 0.0866424 | 0.556 | 84.4% |
+
+	
+> 成本下降百分比 = （腾#云视频处理费用 - FC 转码费用）/ 腾#云视频处理费用
+	
+> [腾#云视频处理](https://cloud.tencent.com/document/product/862/36180)，计费使用普通转码，转码时长不足一分钟，按照一分钟计算，这里计费采用的是 2 min，即使采用 1.5 min 计算， 成本下降百分比也在 80% 左右。
 
 ## 部署
 
@@ -185,7 +254,7 @@ print(resp)
 
 - 更加复杂的视频处理流程， 比如多种格式多种分辨率转码同时进行， 并进行 CDN 预热等各种自定义操作
 
-推荐使用功能更加完善转码方案: [fc-fnf-video-processing](https://github.com/awesome-fc/fc-fnf-video-processing/tree/master/video-processing)
+推荐配合使用[函数工作流](https://help.aliyun.com/product/113549.html)实现功能更加完善视频处理方案: [fc-fnf-video-processing](https://github.com/awesome-fc/fc-fnf-video-processing/tree/master/video-processing)
 
 
 <a name="get_sprites"></a>
@@ -204,7 +273,7 @@ print(resp)
     "itsoffset": 0,
     "scale": "-1:-1",
     "interval": 5,
-    "padding": 1, 
+    "padding": 1,
     "color": "black",
     "dst_type": "png"
 }
@@ -285,7 +354,7 @@ print(resp)
 
 - 图片水印, 静态图片
 
-	vf_args = "movie=/code/logo.png[watermark];[in][watermark]overlay=10:10:1[out]"
+	vf_args = "movie=/code/logo.png[watermark];[in][watermark]overlay=10:10[out]"
 
 **filter_complex_args:**
 

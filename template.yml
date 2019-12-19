@@ -15,7 +15,7 @@ Resources:
         Handler: index.handler
         Runtime: python3
         Timeout: 600
-        MemorySize: 512
+        MemorySize: 256
         CodeUri: ./functions/get_multimedia_meta
     transcode-master:
       Type: 'Aliyun::Serverless::Function'
@@ -39,7 +39,7 @@ Resources:
         Handler: index.handler
         Runtime: python3
         Timeout: 600
-        MemorySize: 512
+        MemorySize: 256
         EnvironmentVariables:
           FFPROBE_BIN_KEY: binary/ffprobe
           FFPROBE_BUKCET_NAME: fc-hz-demo
@@ -74,5 +74,5 @@ Resources:
         Handler: index.handler
         Runtime: python3
         Timeout: 600
-        MemorySize: 512
+        MemorySize: 256
         CodeUri: ./functions/audio_convert

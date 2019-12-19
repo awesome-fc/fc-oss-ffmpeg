@@ -68,7 +68,7 @@ def handler(event, context):
             cmd = ['/code/ffmpeg', '-i', input_path, "-ac", str(ac), '/tmp/{0}{1}'.format(shortname, dst_type)]
     else:
         if ar:
-             cmd = ['/code/ffmpeg', '-i', input_path, "-ar", str(ar),  '/tmp/{0}{1}'.format(shortname, dst_type)]
+            cmd = ['/code/ffmpeg', '-i', input_path, "-ar", str(ar),  '/tmp/{0}{1}'.format(shortname, dst_type)]
 
     LOGGER.info("cmd = {}".format(" ".join(cmd)))
     try:
