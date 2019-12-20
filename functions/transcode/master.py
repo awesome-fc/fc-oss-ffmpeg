@@ -44,6 +44,7 @@ def print_excute_time(func):
         return ret
     return wrapper
 
+
 def get_fileNameExt(filename):
     (fileDir, tempfilename) = os.path.split(filename)
     (shortname, extension) = os.path.splitext(tempfilename)
@@ -51,13 +52,16 @@ def get_fileNameExt(filename):
 
 
 def sub_transcode(fcClient, subEvent):
+    service_name = subEvent.pop('service_name')
+    function_name = subEvent.pop('function_name')
     ret = fcClient.invoke_function(
-        "OSSFC", "transcode-worker", json.dumps(subEvent))
+        service_name, function_name, json.dumps(subEvent))
     if ret != "ok":
         assert "sub_transcode fail, event = {}; error = {}".format(
             json.dumps(subEvent),  ret)
     else:
         return "ok"
+
 
 @print_excute_time
 def handler(event, context):
@@ -76,15 +80,16 @@ def handler(event, context):
         auth, 'oss-%s-internal.aliyuncs.com' % context.region, oss_bucket_name)
 
     shortname, extension = get_fileNameExt(object_key)
-    
+
     input_path = oss_client.sign_url('GET', object_key, 15 * 60)
 
     # split video to pieces
     try:
         subprocess.call(["/code/ffmpeg", "-y",  "-i",  input_path, "-c", "copy", "-f", "segment", "-segment_time", segment_time_seconds, "-reset_timestamps", "1",
-                          "/tmp/split_" + shortname + '_piece_%02d' + extension])
+                         "/tmp/split_" + shortname + '_piece_%02d' + extension])
     except subprocess.CalledProcessError as exc:
-        LOGGER.error('split video to pieces returncode:{}'.format(exc.returncode))
+        LOGGER.error(
+            'split video to pieces returncode:{}'.format(exc.returncode))
         LOGGER.error('split video to pieces cmd:{}'.format(exc.cmd))
         LOGGER.error('split video to pieces output:{}'.format(exc.output))
 
@@ -97,17 +102,24 @@ def handler(event, context):
             os.remove(filepath)
             split_keys.append(filekey)
             LOGGER.info("Uploaded {} to {}".format(filepath, filekey))
-    
+
     LOGGER.info("split spend time = {}".format(time.time() - start))
     start = time.time()
-    
+
     # call worker parallel to transcode
     endpoint = "http://{}.{}-internal.fc.aliyuncs.com".format(
         context.account_id, context.region)
     fcClient = fc2.Client(endpoint=endpoint, accessKeyID=creds.accessKeyId,
-        accessKeySecret=creds.accessKeySecret, securityToken=creds.securityToken, Timeout=600)
+                          accessKeySecret=creds.accessKeySecret, securityToken=creds.securityToken, Timeout=600)
 
     LOGGER.info("split_keys = {}".format(json.dumps(split_keys)))
+
+    sub_service_name = context.service.name
+    stack_name = sub_service_name[0: sub_service_name.index("FcOssFFmpeg")]
+    sub_function_name = fcClient.list_functions(
+        sub_service_name, limit=1, prefix=stack_name + "transcode-worker").data["functions"][0]["functionName"]
+
+    LOGGER.info("worker function name = {}".format(sub_function_name))
 
     ts = []
     for obj_key in split_keys:
@@ -115,7 +127,9 @@ def handler(event, context):
             "bucket_name": oss_bucket_name,
             "object_key": obj_key,
             "dst_type": dst_type,
-            "output_dir": os.path.join(output_dir, context.request_id)
+            "output_dir": os.path.join(output_dir, context.request_id),
+            "service_name": sub_service_name,
+            "function_name": sub_function_name
         }
         LOGGER.info(json.dumps(subEvent))
         t = Thread(target=sub_transcode, args=(fcClient, subEvent,))
@@ -124,10 +138,10 @@ def handler(event, context):
 
     for t in ts:
         t.join()
-        
+
     LOGGER.info("transcode spend time = {}".format(time.time() - start))
     start = time.time()
-    
+
     # merge split pieces which is transcoded
     segs_filename = "segs_{}.txt".format(shortname)
     segs_filepath = os.path.join('/tmp/', segs_filename)
@@ -153,7 +167,7 @@ def handler(event, context):
 
     merged_filename = "merged_" + shortname + dst_type
     merged_filepath = os.path.join("/tmp/", merged_filename)
-    
+
     try:
         subprocess.call(["/code/ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i",
                          segs_filepath, "-c", "copy", "-fflags", "+genpts", merged_filepath])
@@ -165,13 +179,13 @@ def handler(event, context):
     merged_key = os.path.join(output_prefix, merged_filename)
     oss_client.put_object_from_file(merged_key, merged_filepath)
     LOGGER.info("Uploaded {} to {}".format(merged_filepath, merged_key))
-    
+
     LOGGER.info("merge spend time = {}".format(time.time() - start))
 
     os.remove(segs_filepath)
     for fp in split_files:
         os.remove(fp)
-        
+
     # clear all split_video and transcoded split_video on oss
     # todo ...
 

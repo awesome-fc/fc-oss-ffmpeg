@@ -21,7 +21,7 @@ LOGGER = logging.getLogger()
     "output_dir" : "output/",
     "vframes" : 20,
     "start": 0,
-    "duration": 2,
+    "duration": 2
 }
 start 可选， 默认是为 0
 vframes  和 duration 可选， 当同时填写的时候， 以 duration 为准

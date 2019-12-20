@@ -21,7 +21,7 @@ LOGGER = logging.getLogger()
     "output_dir" : "output/",
     "dst_type": ".wav",
     "ac": 1,
-    "ar": 4000,
+    "ar": 4000
 }
 '''
 
