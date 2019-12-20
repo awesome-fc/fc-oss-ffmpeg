@@ -44,9 +44,9 @@ def handler(event, context):
 
     object_url = oss_client.sign_url('GET', object_key, 15 * 60)
 
-    cmd = '/code/ffprobe -show_entries format=duration -v quiet -of csv="p=0" -i {0}'.format(
-        object_url)
-    raw_result = subprocess.check_output(cmd, shell=True)
-    result = raw_result.decode().replace("\n", "").strip()
+    cmd = ["/code/ffprobe",  "-show_entries", "format=duration",
+           "-v", "quiet", "-of", "csv", "-i",  object_url]
+    raw_result = subprocess.check_output(cmd)
+    result = raw_result.decode().replace("\n", "").strip().split(",")[1]
     duration = float(result)
     return duration
