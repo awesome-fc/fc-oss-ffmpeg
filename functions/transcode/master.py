@@ -85,7 +85,7 @@ def handler(event, context):
 
     # split video to pieces
     try:
-        subprocess.call(["/code/ffmpeg", "-y",  "-i",  input_path, "-c", "copy", "-f", "segment", "-segment_time", segment_time_seconds, "-reset_timestamps", "1",
+        subprocess.check_call(["/code/ffmpeg", "-y",  "-i",  input_path, "-c", "copy", "-f", "segment", "-segment_time", segment_time_seconds, "-reset_timestamps", "1",
                          "/tmp/split_" + shortname + '_piece_%02d' + extension])
     except subprocess.CalledProcessError as exc:
         LOGGER.error(
@@ -169,7 +169,7 @@ def handler(event, context):
     merged_filepath = os.path.join("/tmp/", merged_filename)
 
     try:
-        subprocess.call(["/code/ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i",
+        subprocess.check_call(["/code/ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i",
                          segs_filepath, "-c", "copy", "-fflags", "+genpts", merged_filepath])
     except subprocess.CalledProcessError as exc:
         LOGGER.error('merge split pieces returncode:{}'.format(exc.returncode))

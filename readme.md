@@ -16,7 +16,7 @@
 
 本项目中只是展现了这 7 个示例， FC + FFmpeg 可以实现对 oss 上的音视频进行任意的自定义处理， 欢迎大家提 issue 完善示例。
 
-该工程示例已经上线到函数计算应用中心，免费开通[函数计算](https://statistics.functioncompute.com/?title=FcOssFFmpeg&theme=ServerlessVideo&author=rsong&src=article&url=http://fc.console.aliyun.com) 即可在控制台应用中心->新建应用即查看到 `Online FFmpeg` 这个应用。
+该工程示例已经上线到函数计算应用中心，免费开通[函数计算](https://statistics.functioncompute.com/?title=FcOssFFmpeg&theme=ServerlessVideo&author=rsong&src=article&url=http://fc.console.aliyun.com) 即可在控制台应用中心 -> 新建应用即查看到 `Video Audio Processing Service`。
 
 ## 示例效果显示
 <img src="fc-oss-ffmpeg.gif?raw=true">

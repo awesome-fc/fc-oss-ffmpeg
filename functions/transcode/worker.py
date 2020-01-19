@@ -61,7 +61,7 @@ def handler(event, context):
     input_path = oss_client.sign_url('GET', object_key, 15 * 60)
     
     try:
-        subprocess.call(["/code/ffmpeg", "-y", "-i", input_path,
+        subprocess.check_call(["/code/ffmpeg", "-y", "-i", input_path,
                          "-preset", "superfast", transcoded_filepath])
     except subprocess.CalledProcessError as exc:
         LOGGER.error('returncode:{}'.format(exc.returncode))
