@@ -24,7 +24,7 @@ Resources:
         Runtime: python3
         Timeout: 600
         MemorySize: 1024
-        CodeUri: ./functions/transcode
+        CodeUri: ./functions/transcode/master
     transcode-worker:
       Type: 'Aliyun::Serverless::Function'
       Properties:
@@ -32,7 +32,7 @@ Resources:
         Runtime: python3
         Timeout: 600
         MemorySize: 3072
-        CodeUri: ./functions/transcode
+        CodeUri: ./functions/transcode/worker
     get_duration:
       Type: 'Aliyun::Serverless::Function'
       Properties:
