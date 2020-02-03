@@ -110,8 +110,11 @@
 ```
 $ git clone https://github.com/awesome-fc/fc-oss-ffmpeg.git
 $ cd fc-oss-ffmpeg
+$ ./init.sh
 $ fun deploy
 ```
+
+> 注： 第一次需要执行./init.sh， 将 ffmpeg 和 ffprobe 复制到相应的函数的 code dir
 
 <a name="get_media_meta"></a>
 ## get_media_meta 获取音视频 meta
