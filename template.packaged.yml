@@ -1,0 +1,182 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Transform: 'Aliyun::Serverless-2018-04-03'
+Resources:
+  log-fc-oss-ffmpeg:
+    Type: 'Aliyun::Serverless::Log'
+    Properties:
+      Description: The log of all the functions of FcOssFFmpeg
+    
+  function-logs:
+    Type: 'ALIYUN::SLS::Logstore'
+    DependsOn: log-fc-oss-ffmpeg
+    Properties:
+      ProjectName:
+        'Fn::GetAtt':
+          - log-fc-oss-ffmpeg
+          - Name
+      LogstoreName: function-logs
+      TTL: 10
+      ShardCount: 1
+
+  function-logsIndex:
+    Type: 'ALIYUN::SLS::Index'
+    DependsOn: function-logs
+    Properties:
+      ProjectName:
+        'Fn::GetAtt':
+          - log-fc-oss-ffmpeg
+          - Name
+      LogstoreName: function-logs
+      FullTextIndex:
+        Enable: 'true'
+
+  FcOssFFmpeg:
+    Type: 'Aliyun::Serverless::Service'
+    Properties:
+      Description: Scenarios that can be solved by OSS + FC
+      Policies:
+        - AliyunOSSFullAccess
+        - AliyunFCFullAccess
+      InternetAccess: true
+      LogConfig:
+        Project:
+          'Fn::GetAtt':
+            - log-fc-oss-ffmpeg
+            - Name
+        Logstore: function-logs
+
+  get_media_meta:
+    DependsOn: FcOssFFmpeg
+    Type: ALIYUN::FC::Function
+    Properties:
+      ServiceName:
+        'Fn::GetAtt':
+          - FcOssFFmpeg
+          - ServiceName
+      FunctionName: get_media_meta
+      Handler: index.handler
+      Runtime: python3
+      Timeout: 600
+      MemorySize: 512
+      Code:
+        OssBucketName: '%bucket%'
+        OssObjectName: '%templateName%/3dd54550c4ae3f906c7ff60c437c8a85'
+
+  transcode-master:
+    DependsOn: FcOssFFmpeg
+    Type: ALIYUN::FC::Function
+    Properties:
+      ServiceName:
+        'Fn::GetAtt':
+          - FcOssFFmpeg
+          - ServiceName
+      FunctionName: transcode-master
+      Handler: master.handler
+      Runtime: python3
+      Timeout: 600
+      MemorySize: 1024
+      Code:
+        OssBucketName: '%bucket%'
+        OssObjectName: '%templateName%/f35fc621658695ce9adba61482045022'
+
+  transcode-worker:
+    DependsOn: FcOssFFmpeg
+    Type: ALIYUN::FC::Function
+    Properties:
+      ServiceName:
+        'Fn::GetAtt':
+          - FcOssFFmpeg
+          - ServiceName
+      FunctionName: transcode-worker
+      Handler: worker.handler
+      Runtime: python3
+      Timeout: 600
+      MemorySize: 3072
+      Code:
+        OssBucketName: '%bucket%'
+        OssObjectName: '%templateName%/d8f10b9ccc42329d610c4e1a0ff84cd8'
+
+  get_duration:
+    DependsOn: FcOssFFmpeg
+    Type: ALIYUN::FC::Function
+    Properties:
+      ServiceName:
+        'Fn::GetAtt':
+          - FcOssFFmpeg
+          - ServiceName
+      FunctionName: get_duration
+      Handler: index.handler
+      Runtime: python3
+      Timeout: 600
+      MemorySize: 512
+      Code:
+        OssBucketName: '%bucket%'
+        OssObjectName: '%templateName%/684179a803d306e291102379c160815f'
+  
+  video_gif:
+    DependsOn: FcOssFFmpeg
+    Type: ALIYUN::FC::Function
+    Properties:
+      ServiceName:
+        'Fn::GetAtt':
+          - FcOssFFmpeg
+          - ServiceName
+      FunctionName: video_gif
+      Handler: index.handler
+      Runtime: python3
+      Timeout: 600
+      MemorySize: 3072
+      Code:
+        OssBucketName: '%bucket%'
+        OssObjectName: '%templateName%/184c3ed9c574d55e7c71309274942e10'
+
+  get_sprites:
+    DependsOn: FcOssFFmpeg
+    Type: ALIYUN::FC::Function
+    Properties:
+      ServiceName:
+        'Fn::GetAtt':
+          - FcOssFFmpeg
+          - ServiceName
+      FunctionName: get_sprites
+      Handler: index.handler
+      Runtime: python3
+      Timeout: 600
+      MemorySize: 3072
+      Code:
+        OssBucketName: '%bucket%'
+        OssObjectName: '%templateName%/df5926276ce8080a6803c33716726dde'
+
+  video_watermark:
+    DependsOn: FcOssFFmpeg
+    Type: ALIYUN::FC::Function
+    Properties:
+      ServiceName:
+        'Fn::GetAtt':
+          - FcOssFFmpeg
+          - ServiceName
+      FunctionName: video_watermark
+      Handler: index.handler
+      Runtime: python3
+      Timeout: 600
+      MemorySize: 3072
+      Code:
+        OssBucketName: '%bucket%'
+        OssObjectName: '%templateName%/f536049d21a02f12cf283cf06a53b1bf'
+
+  audio_convert:
+    DependsOn: FcOssFFmpeg
+    Type: ALIYUN::FC::Function
+    Properties:
+      ServiceName:
+        'Fn::GetAtt':
+          - FcOssFFmpeg
+          - ServiceName
+      FunctionName: audio_convert
+      Handler: index.handler
+      Runtime: python3
+      Timeout: 600
+      MemorySize: 1024
+      Code:
+        OssBucketName: '%bucket%'
+        OssObjectName: '%templateName%/ea1f82ef9c96f0b9226a2b7c811934d6'
