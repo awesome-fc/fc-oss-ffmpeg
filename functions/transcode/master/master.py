@@ -35,6 +35,8 @@ LOGGER = logging.getLogger()
 '''
 
 # a decorator for print the excute time of a function
+
+
 def print_excute_time(func):
     def wrapper(*args, **kwargs):
         local_time = time.time()
@@ -86,7 +88,7 @@ def handler(event, context):
     # split video to pieces
     try:
         subprocess.check_call(["/code/ffmpeg", "-y",  "-i",  input_path, "-c", "copy", "-f", "segment", "-segment_time", segment_time_seconds, "-reset_timestamps", "1",
-                         "/tmp/split_" + shortname + '_piece_%02d' + extension])
+                               "/tmp/split_" + shortname + '_piece_%02d' + extension])
     except subprocess.CalledProcessError as exc:
         LOGGER.error(
             'split video to pieces returncode:{}'.format(exc.returncode))
@@ -115,9 +117,7 @@ def handler(event, context):
     LOGGER.info("split_keys = {}".format(json.dumps(split_keys)))
 
     sub_service_name = context.service.name
-    stack_name = sub_service_name[0: sub_service_name.index("FcOssFFmpeg")]
-    sub_function_name = fcClient.list_functions(
-        sub_service_name, limit=1, prefix=stack_name + "transcode-worker").data["functions"][0]["functionName"]
+    sub_function_name = 'transcode-worker'
 
     LOGGER.info("worker function name = {}".format(sub_function_name))
 
@@ -170,7 +170,7 @@ def handler(event, context):
 
     try:
         subprocess.check_call(["/code/ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i",
-                         segs_filepath, "-c", "copy", "-fflags", "+genpts", merged_filepath])
+                               segs_filepath, "-c", "copy", "-fflags", "+genpts", merged_filepath])
     except subprocess.CalledProcessError as exc:
         LOGGER.error('merge split pieces returncode:{}'.format(exc.returncode))
         LOGGER.error('merge split pieces cmd:{}'.format(exc.cmd))

@@ -280,7 +280,7 @@ print(resp)
     "interval": 5,
     "padding": 1,
     "color": "black",
-    "dst_type": "png"
+    "dst_type": "jpg"
 }
 ```
 
@@ -304,7 +304,7 @@ print(resp)
 
 - padding: 可选，图片之间的间隔, 默认为 0
 - color: 可选，雪碧图背景颜色，默认黑色， https://ffmpeg.org/ffmpeg-utils.html#color-syntax
-- dst_type: 可选，生成的雪碧图图片格式，默认为 png，主要为 png 或者 jpg，[image2](https://ffmpeg.org/ffmpeg-all.html#image2-1)
+- dst_type: 可选，生成的雪碧图图片格式，默认为 jpg，主要为 jpg 或者 png，[image2](https://ffmpeg.org/ffmpeg-all.html#image2-1)
 
 **response:**
 

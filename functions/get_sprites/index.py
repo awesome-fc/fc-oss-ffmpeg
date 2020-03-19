@@ -21,13 +21,13 @@ LOGGER = logging.getLogger()
     "output_dir" : "output/",
     "tile": "3*4",
     "start": 0,
-    "duration": 2,
-    "itsoffset": 0，
+    "duration": 10,
+    "itsoffset": 0,
     "scale": "-1:-1",
-    "interval": 5,
+    "interval": 2,
     "padding": 1, 
     "color": "black",
-    "dst_type": "png"
+    "dst_type": "jpg"
 }
 tile: 必填， 雪碧图的 rows * cols
 start: 可选， 默认是为 0
@@ -42,10 +42,12 @@ itsoffset: 可选，默认为 0, delay多少秒，配合start、interval使用
 - 假设 start 为 0， interval 为 10，itsoffset 为 -1， 那么截图的秒数为 6， 16，26 ...
 padding: 可选，图片之间的间隔, 默认为 0
 color: 可选，雪碧图背景颜色，默认黑色， https://ffmpeg.org/ffmpeg-utils.html#color-syntax
-dst_type: 可选，生成的雪碧图图片格式，默认为 png，主要为 png 或者 jpg， https://ffmpeg.org/ffmpeg-all.html#image2-1
+dst_type: 可选，生成的雪碧图图片格式，默认为 jpg，主要为 jpg 或者 png， https://ffmpeg.org/ffmpeg-all.html#image2-1
 '''
 
 # a decorator for print the excute time of a function
+
+
 def print_excute_time(func):
     def wrapper(*args, **kwargs):
         local_time = time.time()
@@ -55,10 +57,12 @@ def print_excute_time(func):
         return ret
     return wrapper
 
+
 def get_fileNameExt(filename):
     (fileDir, tempfilename) = os.path.split(filename)
     (shortname, extension) = os.path.splitext(tempfilename)
     return fileDir, shortname, extension
+
 
 @print_excute_time
 def handler(event, context):
@@ -80,7 +84,7 @@ def handler(event, context):
     interval = str(evt.get("interval", 1))
     padding = str(evt.get("padding", 0))
     color = str(evt.get("color", "black"))
-    dst_type = str(evt.get("dst_type", "png"))
+    dst_type = str(evt.get("dst_type", "jpg"))
 
     creds = context.credentials
     auth = oss2.StsAuth(creds.accessKeyId,
@@ -101,7 +105,7 @@ def handler(event, context):
                '-f', 'image2', '-vf', "fps=1/{0},scale={1},tile={2}:padding={3}:color={4}".format(
                    interval, scale, tile, padding, color),
                '/tmp/{0}%d.{1}'.format(shortname, dst_type)]
-    
+
     LOGGER.info("cmd = {}".format(" ".join(cmd)))
     try:
         subprocess.check_call(cmd)
