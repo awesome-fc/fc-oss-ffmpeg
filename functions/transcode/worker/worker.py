@@ -58,7 +58,7 @@ def handler(event, context):
     transcoded_filepath = os.path.join(
         "/tmp/", "transcoded_" + shortname + dst_type)
     
-    input_path = oss_client.sign_url('GET', object_key, 15 * 60)
+    input_path = oss_client.sign_url('GET', object_key, 3600)
     
     try:
         subprocess.check_call(["/code/ffmpeg", "-y", "-i", input_path,

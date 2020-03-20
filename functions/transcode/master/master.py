@@ -83,7 +83,7 @@ def handler(event, context):
 
     shortname, extension = get_fileNameExt(object_key)
 
-    input_path = oss_client.sign_url('GET', object_key, 15 * 60)
+    input_path = oss_client.sign_url('GET', object_key, 3600)
 
     # split video to pieces
     try:

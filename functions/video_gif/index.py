@@ -64,7 +64,7 @@ def handler(event, context):
     oss_client = oss2.Bucket(
         auth, 'oss-%s-internal.aliyuncs.com' % context.region, oss_bucket_name)
     
-    input_path = oss_client.sign_url('GET', object_key, 15 * 60)
+    input_path = oss_client.sign_url('GET', object_key, 3600)
     fileDir, shortname, extension = get_fileNameExt(object_key)
     gif_path = os.path.join("/tmp", shortname + ".gif")
     
