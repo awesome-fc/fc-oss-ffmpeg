@@ -50,6 +50,8 @@
 
 ### 转码
 
+有关更多 serverless 转码内容， 可以参考 [simple-video-processing](https://github.com/awesome-fc/simple-video-processing)
+
 #### 性能
 
 实验视频为是 89s 的 mov 文件 4K 视频: [4K.mov](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/4K.mov)，云服务进行 mov -> mp4 普通转码需要消耗的时间为 188s， 将这个参考时间记为 T
@@ -67,25 +69,39 @@
 从上表可以看出，设置的视频切片时间越短， 视频转码时间越短， 函数计算可以自动瞬时调度出更多的计算资源来一起完成这个视频的转码, 转码性能优异。
 
 #### 成本
-实验视频为是 89s 的 mov 文件短视频， 测试视频地址：
-[480P.mov](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/480P.mov) [720P.mov](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/720P.mov)  [1080P.mov](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/1080P.mov)  [4K.mov](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/4K.mov)
+我们这边选用点播视频中最常用的两个格式(mp4、flv)之间进行相互转换，经实验验证， 函数内存设置为3G，基于该方案从 mp4 转码为 flv 的费用概览表:
 
-> 测试命令: `ffmpeg -i test.mov -preset superfast test.mp4`， 函数内存规格设置为 3G
-	
-**格式转换**
+> 实验视频为是 89s 的 mp4 和 flv 格式的文件视频， 测试视频地址：
 
+>[480P.mp4](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/480P.mp4) [720P.mp4](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/720P.mp4)  [1080P.mp4](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/1080P.mov)  [4K.mp4](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/4K.mp4)
 
-| 分辨率 | bitrate |  帧率 | FC 转码耗费时间 | FC 转码费用 | 腾#云视频处理费用 | 成本下降百分比 |
-| ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-| 标清 640*480   |  618 kb/s | 24 | 11s | 0.00366564 | 0.032 | 88.5% |
-| 高清 1280*720  |  1120 kb/s | 24 | 31s | 0.01033044 |0.065 | 84.1% |
-| 超清 1920*1080 |  1942 kb/s |  24 | 66s | 0.02199384 | 0.126 | 82.5% |
-| 4K  3840*2160 |  5250 kb/s| 24 | 260s | 0.0866424 | 0.556 | 84.4% |
+>[480P.flv](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/480P.flv) [720P.flv](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/720P.flv)  [1080P.flv](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/1080P.flv)  [4K.flv](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/4K.flv)
 
-	
-> 成本下降百分比 = （腾#云视频处理费用 - FC 转码费用）/ 腾#云视频处理费用
-	
-> [腾#云视频处理](https://cloud.tencent.com/document/product/862/36180)，计费使用普通转码，转码时长不足一分钟，按照一分钟计算，这里计费采用的是 2 min，即使采用 1.5 min 计算， 成本下降百分比也在 80% 左右。
+> 测试命令: `ffmpeg -i test.flv test.mp4` 和  `ffmpeg -i test.flv test.mp4`
+
+**mp4 转 flv：**
+
+| 分辨率 | bitrate |  帧率 | FC 转码耗费时间 | FC 转码费用 | 腾讯云视频处理费用 | 成本下降百分比
+| ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+| 标清 640*480   |  889 kb/s | 24 | 11.2s |0.003732288 | 0.032 | 88.3%
+| 高清 1280*720  |  1963 kb/s | 24 | 20.5s | 0.00683142 |0.065 | 89.5%
+| 超清 1920*1080 |  3689 kb/s |  24 | 40s | 0.0133296 | 0.126 | 89.4%
+| 4K  3840*2160 |  11185 kb/s| 24 | 142s | 0.04732008 | 0.556 | 91.5%
+
+**flv 转 mp4：**
+
+| 分辨率 | bitrate |  帧率 | FC 转码耗费时间 | FC 转码费用 | 腾讯云视频处理费用 | 成本下降百分比
+| ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+| 标清 640*480   |  712 kb/s | 24 | 34.5s |0.01149678 | 0.032 | 64.1%
+| 高清 1280*720  |  1806 kb/s | 24 | 100.3s | 0.033424 |0.065 | 48.6%
+| 超清 1920*1080 |  3911 kb/s |  24 | 226.4s | 0.0754455 | 0.126 | 40.1%
+| 4K  3840*2160 |  15109 kb/s| 24 | 912s | 0.30391488 | 0.556 | 45.3%
+
+> 成本下降百分比 = （腾讯云视频处理费用 - FC 转码费用）/ 腾讯云视频处理费用
+
+> [腾讯云视频处理](https://cloud.tencent.com/document/product/862/36180)，计费使用普通转码，转码时长不足一分钟，按照一分钟计算，这里计费采用的是 2 min，即使采用 1.5 min 计算， 成本下降百分比基本在10%以内浮动
+
+从上表可以看出， 基于函数计算 + 函数工作流的方案在计算资源成本上对于计算复杂度较高的 `flv 转 mp4`  还是计算复杂度较低的  `mp4 转 flv`,  都具有很强的成本竞争力。
 
 ## 部署
 
@@ -255,11 +271,9 @@ print(resp)
 
 **更高自定义需求**
 
-- 打破 /tmp 有 512M 限制
+- [simple-video-processing](https://github.com/awesome-fc/simple-video-processing) 提供一键式完整解决方案
 
-- 更加复杂的视频处理流程， 比如多种格式多种分辨率转码同时进行， 并进行 CDN 预热等各种自定义操作
-
-推荐配合使用[函数工作流](https://help.aliyun.com/product/113549.html)实现功能更加完善视频处理方案: [fc-fnf-video-processing](https://github.com/awesome-fc/fc-fnf-video-processing/tree/master/video-processing)
+- 可配合使用[函数工作流](https://help.aliyun.com/product/113549.html)实现功能更加复杂视频处理工作流方案: [fc-fnf-video-processing](https://github.com/awesome-fc/fc-fnf-video-processing/tree/master/video-processing)
 
 
 <a name="get_sprites"></a>
