@@ -60,13 +60,17 @@ def handler(event, context):
     
     input_path = oss_client.sign_url('GET', object_key, 3600)
     
+    cmd = ["/code/ffmpeg", "-y", "-i", input_path,
+           "-preset", "superfast", transcoded_filepath]
     try:
-        subprocess.check_call(["/code/ffmpeg", "-y", "-i", input_path,
-                         "-preset", "superfast", transcoded_filepath])
+        result = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     except subprocess.CalledProcessError as exc:
         LOGGER.error('returncode:{}'.format(exc.returncode))
         LOGGER.error('cmd:{}'.format(exc.cmd))
         LOGGER.error('output:{}'.format(exc.output))
+        LOGGER.error('detail:{}'.format(
+            result.stderr.decode()))
     
     transcoded_key = os.path.join(
         output_dir, "transcoded_" + shortname + dst_type)

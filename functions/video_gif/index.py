@@ -80,11 +80,14 @@ def handler(event, context):
 
     LOGGER.info("cmd = {}".format(" ".join(cmd)))
     try:
-        subprocess.check_call(cmd)
+        result = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     except subprocess.CalledProcessError as exc:
         LOGGER.error('returncode:{}'.format(exc.returncode))
         LOGGER.error('cmd:{}'.format(exc.cmd))
         LOGGER.error('output:{}'.format(exc.output))
+        LOGGER.error('detail:{}'.format(
+            result.stderr.decode()))
     
     gif_key = os.path.join(output_dir, fileDir, shortname + ".gif")
 

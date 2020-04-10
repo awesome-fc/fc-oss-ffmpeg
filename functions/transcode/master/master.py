@@ -86,14 +86,18 @@ def handler(event, context):
     input_path = oss_client.sign_url('GET', object_key, 3600)
 
     # split video to pieces
+    split_cmd = ["/code/ffmpeg", "-y",  "-i",  input_path, "-c", "copy", "-f", "segment", "-segment_time", segment_time_seconds, "-reset_timestamps", "1",
+                 "/tmp/split_" + shortname + '_piece_%02d' + extension]
     try:
-        subprocess.check_call(["/code/ffmpeg", "-y",  "-i",  input_path, "-c", "copy", "-f", "segment", "-segment_time", segment_time_seconds, "-reset_timestamps", "1",
-                               "/tmp/split_" + shortname + '_piece_%02d' + extension])
+        result = subprocess.run(
+            split_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     except subprocess.CalledProcessError as exc:
         LOGGER.error(
             'split video to pieces returncode:{}'.format(exc.returncode))
         LOGGER.error('split video to pieces cmd:{}'.format(exc.cmd))
         LOGGER.error('split video to pieces output:{}'.format(exc.output))
+        LOGGER.error('split video to pieces detail:{}'.format(
+            result.stderr.decode()))
 
     split_keys = []
     for filename in os.listdir('/tmp/'):
@@ -167,14 +171,18 @@ def handler(event, context):
 
     merged_filename = "merged_" + shortname + dst_type
     merged_filepath = os.path.join("/tmp/", merged_filename)
-
+    
+    merge_cmd = ["/code/ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i",
+                 segs_filepath, "-c", "copy", "-fflags", "+genpts", merged_filepath]
     try:
-        subprocess.check_call(["/code/ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i",
-                               segs_filepath, "-c", "copy", "-fflags", "+genpts", merged_filepath])
+        result = subprocess.run(
+            merge_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     except subprocess.CalledProcessError as exc:
         LOGGER.error('merge split pieces returncode:{}'.format(exc.returncode))
         LOGGER.error('merge split pieces cmd:{}'.format(exc.cmd))
         LOGGER.error('merge split pieces output:{}'.format(exc.output))
+        LOGGER.error('split video to pieces detail:{}'.format(
+            result.stderr.decode()))
 
     merged_key = os.path.join(output_prefix, merged_filename)
     oss_client.put_object_from_file(merged_key, merged_filepath)
