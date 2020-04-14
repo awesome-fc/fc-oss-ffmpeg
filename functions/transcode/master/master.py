@@ -89,15 +89,15 @@ def handler(event, context):
     split_cmd = ["/code/ffmpeg", "-y",  "-i",  input_path, "-c", "copy", "-f", "segment", "-segment_time", segment_time_seconds, "-reset_timestamps", "1",
                  "/tmp/split_" + shortname + '_piece_%02d' + extension]
     try:
-        result = subprocess.run(
+        subprocess.run(
             split_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     except subprocess.CalledProcessError as exc:
         LOGGER.error(
             'split video to pieces returncode:{}'.format(exc.returncode))
         LOGGER.error('split video to pieces cmd:{}'.format(exc.cmd))
         LOGGER.error('split video to pieces output:{}'.format(exc.output))
-        LOGGER.error('split video to pieces detail:{}'.format(
-            result.stderr.decode()))
+        LOGGER.error('split video to pieces stderr:{}'.format(exc.stderr))
+        LOGGER.error('split video to pieces stdout:{}'.format(exc.stdout))
 
     split_keys = []
     for filename in os.listdir('/tmp/'):
@@ -175,14 +175,14 @@ def handler(event, context):
     merge_cmd = ["/code/ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i",
                  segs_filepath, "-c", "copy", "-fflags", "+genpts", merged_filepath]
     try:
-        result = subprocess.run(
+        subprocess.run(
             merge_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     except subprocess.CalledProcessError as exc:
         LOGGER.error('merge split pieces returncode:{}'.format(exc.returncode))
         LOGGER.error('merge split pieces cmd:{}'.format(exc.cmd))
         LOGGER.error('merge split pieces output:{}'.format(exc.output))
-        LOGGER.error('split video to pieces detail:{}'.format(
-            result.stderr.decode()))
+        LOGGER.error('merge split pieces stderr:{}'.format(exc.stderr))
+        LOGGER.error('merge split pieces stdout:{}'.format(exc.stdout))
 
     merged_key = os.path.join(output_prefix, merged_filename)
     oss_client.put_object_from_file(merged_key, merged_filepath)

@@ -108,13 +108,14 @@ def handler(event, context):
 
     LOGGER.info("cmd = {}".format(" ".join(cmd)))
     try:
-        result = subprocess.run(
+        subprocess.run(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     except subprocess.CalledProcessError as exc:
         LOGGER.error('returncode:{}'.format(exc.returncode))
         LOGGER.error('cmd:{}'.format(exc.cmd))
         LOGGER.error('output:{}'.format(exc.output))
-        LOGGER.error('detail:{}'.format(result.stderr.decode()))
+        LOGGER.error('stderr:{}'.format(exc.stderr))
+        LOGGER.error('stdout:{}'.format(exc.stdout))
 
     for filename in os.listdir('/tmp/'):
         filepath = '/tmp/' + filename
