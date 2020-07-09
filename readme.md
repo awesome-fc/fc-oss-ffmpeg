@@ -113,7 +113,7 @@
 
 -	安装版本为8.x 最新版或者10.x 、12.x [nodejs](https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions-enterprise-linux-fedora-and-snap-packages)
 
--	安装 [funcraf](https://github.com/alibaba/funcraft/blob/master/docs/usage/installation-zh.md)
+-	安装 [funcraft](https://github.com/alibaba/funcraft/blob/master/docs/usage/installation-zh.md)
 
 	```
 	$ npm install @alicloud/fun -g
