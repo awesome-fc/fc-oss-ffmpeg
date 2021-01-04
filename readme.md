@@ -125,7 +125,7 @@
 curl -o- -L http://cli.so/install.sh | bash
 ```
 
-[安装参考](https://github.com/Serverless-Devs/docs/blob/master/docs/zh/tool/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85.md
+[安装参考](https://github.com/Serverless-Devs/docs/blob/master/docs/zh/tool/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85.md)
 
 **配置**
 
