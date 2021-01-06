@@ -2,10 +2,14 @@ FcOssFFmpeg:
   Component: fun
   Provider: alibaba
   Extends:
-      deploy:
-        - Hook: ./init.sh
-          Path: ./
-          Pre: true
+    package:
+      - Hook: ./init.sh
+        Path: ./
+        Pre: true
+    deploy:
+      - Hook: ./init.sh
+        Path: ./
+        Pre: true
   Properties:
     Region: ${Env(REGION)}
     Config: s
