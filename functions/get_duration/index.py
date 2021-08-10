@@ -22,6 +22,8 @@ LOGGER = logging.getLogger()
 '''
 
 # a decorator for print the excute time of a function
+
+
 def print_excute_time(func):
     def wrapper(*args, **kwargs):
         local_time = time.time()
@@ -30,6 +32,7 @@ def print_excute_time(func):
                     (func.__name__, time.time() - local_time))
         return ret
     return wrapper
+
 
 @print_excute_time
 def handler(event, context):
@@ -44,7 +47,7 @@ def handler(event, context):
 
     object_url = oss_client.sign_url('GET', object_key, 15 * 60)
 
-    cmd = ["/code/ffprobe",  "-show_entries", "format=duration",
+    cmd = ["ffprobe",  "-show_entries", "format=duration",
            "-v", "quiet", "-of", "csv", "-i",  object_url]
     raw_result = subprocess.check_output(cmd)
     result = raw_result.decode().replace("\n", "").strip().split(",")[1]

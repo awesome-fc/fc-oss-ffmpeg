@@ -22,6 +22,8 @@ LOGGER = logging.getLogger()
 '''
 
 # a decorator for print the excute time of a function
+
+
 def print_excute_time(func):
     def wrapper(*args, **kwargs):
         local_time = time.time()
@@ -30,6 +32,7 @@ def print_excute_time(func):
                     (func.__name__, time.time() - local_time))
         return ret
     return wrapper
+
 
 @print_excute_time
 def handler(event, context):
@@ -43,9 +46,9 @@ def handler(event, context):
         auth, 'oss-%s-internal.aliyuncs.com' % context.region, oss_bucket_name)
 
     object_url = oss_client.sign_url('GET', object_key, 15 * 60)
-    
-    raw_result = subprocess.check_output(["/code/ffprobe", "-v", "quiet", "-show_format", "-show_streams",
-                            "-print_format", "json",  "-i",  object_url])
+
+    raw_result = subprocess.check_output(["ffprobe", "-v", "quiet", "-show_format", "-show_streams",
+                                          "-print_format", "json",  "-i",  object_url])
     result = json.loads(raw_result)
 
     return result

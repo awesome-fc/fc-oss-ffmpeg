@@ -22,8 +22,6 @@
 
 本项目中只是展现了这 7 个示例， FC + FFmpeg 可以实现对 oss 上的音视频进行任意的自定义处理， 欢迎大家提 issue 完善示例。
 
-该工程示例已经上线到函数计算应用中心，免费开通[函数计算](https://statistics.functioncompute.com/?title=FcOssFFmpeg&theme=ServerlessVideo&author=rsong&src=article&url=http://fc.console.aliyun.com) 即可在控制台应用中心 -> 新建应用即查看到 `Video Audio Processing Service`。
-
 ## 示例效果显示
 
 <img src="fc-oss-ffmpeg.gif?raw=true">
@@ -117,15 +115,9 @@
 
 免费开通[函数计算](https://statistics.functioncompute.com/?title=FcOssFFmpeg&theme=ServerlessVideo&author=rsong&src=article&url=http://fc.console.aliyun.com) 和[对象存储](https://oss.console.aliyun.com/)
 
-### 安装 Serverless-Devs 工具
+### 安装并且配置最新版本的 Serverless Devs
 
-**MAC/Linux**
-
-```bash
-curl -o- -L http://cli.so/install.sh | bash
-```
-
-[安装参考](https://github.com/Serverless-Devs/docs/blob/master/docs/zh/tool/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85.md)
+[Serverless Devs 安装手册](https://www.serverless-devs.com/docs/install)
 
 **配置**
 
@@ -133,7 +125,7 @@ curl -o- -L http://cli.so/install.sh | bash
 s config add
 ```
 
-[快速开始参考](https://github.com/Serverless-Devs/docs/blob/master/docs/zh/tool/%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B.md)
+[配置命令参考](https://www.serverless-devs.com/docs/command), 配置一个阿里云的秘钥。
 
 ### Clone 工程，在工程目录上，命令行输入 `s deploy` 执行
 
@@ -175,6 +167,12 @@ $ s deploy
 }
 ```
 
+**S 工具调用示例:**
+
+```bash
+$ s fc-FcOssFFmpeg-get_media_meta invoke -e '{"bucket_name": "test-bucket","object_key": "a.mp4"}'
+```
+
 **python sdk 调用函数示例:**
 
 ```python
@@ -212,6 +210,12 @@ print(resp)
 **response:**
 
 `20.45`
+
+**S 工具调用示例:**
+
+```bash
+$ s fc-FcOssFFmpeg-get_duration invoke -e '{"bucket_name": "test-bucket","object_key": "a.mp4"}'
+```
 
 **python sdk 调用函数示例:**
 
@@ -268,6 +272,12 @@ TIPS:
 
 转码后的视频会保存在 OSS 的这个 output_dir 目录中
 
+**S 工具调用示例:**
+
+```bash
+$ s fc-FcOssFFmpeg-transcode-master invoke -e '{"bucket_name": "test-bucket","object_key": "a.mp4","dst_type" : ".flv", "segment_time_seconds": 30, "output_dir" : "output/"}'
+```
+
 **python sdk 调用函数示例:**
 
 ```python
@@ -277,7 +287,7 @@ import json
 
 client = fc2.Client(endpoint="http://1123456.cn-hangzhou.fc.aliyuncs.com",accessKeyID="xxxxxxxx",accessKeySecret="yyyyyy")
 
-resp = client.invoke_function("FcOssFFmpeg", "transcode", payload=json.dumps(
+resp = client.invoke_function("FcOssFFmpeg", "transcode-master", payload=json.dumps(
 {
     "bucket_name" : "test-bucket",
     "object_key" : "a.mp4",
@@ -347,6 +357,12 @@ print(resp)
 
 生成 1 张或者多张雪碧图保存到 bucket 的该目录( `output_dir + "/" + dir(object_key)` )中，假设截图的数量小于等于 tile 指定的 rows \* cols， 生成一张雪碧图， 否则生成多张雪碧图
 
+**S 工具调用示例:**
+
+```bash
+$ s fc-FcOssFFmpeg-get_sprites invoke -e '{"bucket_name": "qd-style2paints","object_key": "video/480P.mp4", "output_dir" : "output/", "tile": "3*4"}'
+```
+
 **python sdk 调用函数示例:**
 
 ```python
@@ -360,7 +376,8 @@ resp = client.invoke_function("FcOssFFmpeg", "get_sprites", payload=json.dumps(
 {
     "bucket_name" : "test-bucket",
     "object_key" : "a.mp4",
-    "output_dir" : "output/"
+    "output_dir" : "output/",
+    "tile": "3*4"
 })).data
 
 print(resp)
@@ -409,6 +426,12 @@ print(resp)
 
 生成具有水印的视频，保存到 bucket 的该目录( `output_dir + "/" + dir(object_key)` )中
 
+**S 工具调用示例:**
+
+```bash
+$ s fc-FcOssFFmpeg-video_watermark invoke -e '{"bucket_name": "test-bucket","object_key": "a.mp4", "output_dir" : "output/", "vf_args" : "drawtext=fontfile=/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc:text='hello函数计算':x=100:y=50:fontsize=24:fontcolor=red"}'
+```
+
 **python sdk 调用函数示例:**
 
 ```python
@@ -422,7 +445,7 @@ resp = client.invoke_function("FcOssFFmpeg", "video_watermark", payload=json.dum
 {
     "bucket_name" : "test-bucket",
     "object_key" : "a.mp4",
-     "output_dir" : "output/",
+    "output_dir" : "output/",
     "vf_args" : "drawtext=fontfile=/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc:text='hello函数计算':x=100:y=50:fontsize=24:fontcolor=red"
 })).data
 
@@ -462,6 +485,12 @@ print(resp)
 `ok`
 
 生成 gif 图片，保存到 bucket 的该目录( `output_dir + "/" + dir(object_key)` )中
+
+**S 工具调用示例:**
+
+```bash
+$ s fc-FcOssFFmpeg-video_gif invoke -e '{"bucket_name": "test-bucket","object_key": "a.mp4", "output_dir" : "output/"}'
+```
 
 **python sdk 调用函数示例:**
 
@@ -509,6 +538,12 @@ print(resp)
 `ok`
 
 生成目标格式的音频文件，保存到 bucket 的该目录( `output_dir + "/" + dir(object_key)` )中
+
+**S 工具调用示例:**
+
+```bash
+$ s fc-FcOssFFmpeg-audio_convert invoke -e '{"bucket_name": "test-bucket","object_key": "a.mp4", "output_dir" : "output/", "dst_type": ".wav", "ac": 1,"ar": 8000}'
+```
 
 **python sdk 调用函数示例:**
 

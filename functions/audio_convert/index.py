@@ -26,6 +26,8 @@ LOGGER = logging.getLogger()
 '''
 
 # a decorator for print the excute time of a function
+
+
 def print_excute_time(func):
     def wrapper(*args, **kwargs):
         local_time = time.time()
@@ -35,10 +37,12 @@ def print_excute_time(func):
         return ret
     return wrapper
 
+
 def get_fileNameExt(filename):
     (fileDir, tempfilename) = os.path.split(filename)
     (shortname, extension) = os.path.splitext(tempfilename)
     return fileDir, shortname, extension
+
 
 @print_excute_time
 def handler(event, context):
@@ -50,7 +54,7 @@ def handler(event, context):
     dst_type = evt["dst_type"]
     ac = evt.get("ac")
     ar = evt.get("ar")
-    
+
     creds = context.credentials
     auth = oss2.StsAuth(creds.accessKeyId,
                         creds.accessKeySecret, creds.securityToken)
@@ -59,16 +63,20 @@ def handler(event, context):
 
     input_path = oss_client.sign_url('GET', object_key, 3600)
     fileDir, shortname, extension = get_fileNameExt(object_key)
-    
-    cmd = ['/code/ffmpeg', '-i', input_path, '/tmp/{0}{1}'.format(shortname, dst_type)]
+
+    cmd = ['ffmpeg', '-i', input_path,
+           '/tmp/{0}{1}'.format(shortname, dst_type)]
     if ac:
         if ar:
-            cmd = ['/code/ffmpeg', '-i', input_path, "-ac", str(ac), "-ar", str(ar),  '/tmp/{0}{1}'.format(shortname, dst_type)]
+            cmd = ['ffmpeg', '-i', input_path, "-ac",
+                   str(ac), "-ar", str(ar),  '/tmp/{0}{1}'.format(shortname, dst_type)]
         else:
-            cmd = ['/code/ffmpeg', '-i', input_path, "-ac", str(ac), '/tmp/{0}{1}'.format(shortname, dst_type)]
+            cmd = ['ffmpeg', '-i', input_path, "-ac",
+                   str(ac), '/tmp/{0}{1}'.format(shortname, dst_type)]
     else:
         if ar:
-            cmd = ['/code/ffmpeg', '-i', input_path, "-ar", str(ar),  '/tmp/{0}{1}'.format(shortname, dst_type)]
+            cmd = ['ffmpeg', '-i', input_path, "-ar",
+                   str(ar),  '/tmp/{0}{1}'.format(shortname, dst_type)]
 
     LOGGER.info("cmd = {}".format(" ".join(cmd)))
     try:
