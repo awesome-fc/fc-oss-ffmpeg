@@ -236,6 +236,12 @@ print(resp)
 
 ## transcode 功能强大的并行视频转码器
 
+TIPS:
+
+> 如果您对转码时间没有极快的需求， 强烈建议直接使用性能型实例(目前最大 16C32G)， 单实例单并发直接转码:
+> [simple-video-processing](https://github.com/awesome-fc/simple-video-processing)
+
+<br/>
 <img src="transcode.png?raw=true">
 
 如上图所示， 利用函数计算的毫秒级动态扩容 + 分治思想实现快速转码， 通过设置合理的分片时间， 达到加快转码的目的。
