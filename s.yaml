@@ -1,11 +1,114 @@
-FcOssFFmpeg:
-  Component: fun
-  Provider: alibaba
-  Extends:
-      deploy:
-        - Hook: ./init.sh
-          Path: ./
-          Pre: true
-  Properties:
-    Region: ${Env(REGION)}
-    Config: s
+edition: 1.0.0
+name: transform_fun
+access: default
+vars:
+  region: cn-qingdao
+  FcOssFFmpeg:
+    name: FcOssFFmpeg
+    description: Scenarios that can be solved by OSS + FC
+    role:
+      name: FcOssFFmpegDefaultRole
+      policies:
+        - AliyunOSSFullAccess
+        - AliyunFCFullAccess
+    internetAccess: true
+services:
+  fc-FcOssFFmpeg-get_media_meta:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service: ${vars.FcOssFFmpeg}
+      function:
+        name: get_media_meta
+        handler: index.handler
+        timeout: 600
+        memorySize: 256
+        runtime: python3
+        codeUri: ./functions/get_multimedia_meta
+  fc-FcOssFFmpeg-transcode-master:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service: ${vars.FcOssFFmpeg}
+      function:
+        name: transcode-master
+        handler: master.handler
+        timeout: 600
+        memorySize: 1024
+        runtime: python3
+        codeUri: ./functions/transcode/master
+  fc-FcOssFFmpeg-transcode-worker:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service: ${vars.FcOssFFmpeg}
+      function:
+        name: transcode-worker
+        handler: worker.handler
+        timeout: 600
+        memorySize: 3072
+        runtime: python3
+        codeUri: ./functions/transcode/worker
+  fc-FcOssFFmpeg-get_duration:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service: ${vars.FcOssFFmpeg}
+      function:
+        name: get_duration
+        handler: index.handler
+        timeout: 600
+        memorySize: 256
+        runtime: python3
+        environmentVariables:
+          FFPROBE_BIN_KEY: binary/ffprobe
+          FFPROBE_BUKCET_NAME: fc-hz-demo
+        codeUri: ./functions/get_duration
+  fc-FcOssFFmpeg-video_gif:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service: ${vars.FcOssFFmpeg}
+      function:
+        name: video_gif
+        handler: index.handler
+        timeout: 600
+        memorySize: 512
+        runtime: python3
+        codeUri: ./functions/video_gif
+  fc-FcOssFFmpeg-get_sprites:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service: ${vars.FcOssFFmpeg}
+      function:
+        name: get_sprites
+        handler: index.handler
+        timeout: 600
+        memorySize: 512
+        runtime: python3
+        codeUri: ./functions/get_sprites
+  fc-FcOssFFmpeg-video_watermark:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service: ${vars.FcOssFFmpeg}
+      function:
+        name: video_watermark
+        handler: index.handler
+        timeout: 600
+        memorySize: 512
+        runtime: python3
+        codeUri: ./functions/video_watermark
+  fc-FcOssFFmpeg-audio_convert:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service: ${vars.FcOssFFmpeg}
+      function:
+        name: audio_convert
+        handler: index.handler
+        timeout: 600
+        memorySize: 256
+        runtime: python3
+        codeUri: ./functions/audio_convert

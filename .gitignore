@@ -7,3 +7,4 @@ functions/video_watermark/ffmpeg
 functions/transcode/master/ffmpeg
 functions/transcode/worker/ffmpeg
 .fun
+.s

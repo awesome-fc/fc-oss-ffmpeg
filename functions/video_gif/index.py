@@ -29,6 +29,8 @@ vframes  和 duration 可选， 当同时填写的时候， 以 duration 为准
 '''
 
 # a decorator for print the excute time of a function
+
+
 def print_excute_time(func):
     def wrapper(*args, **kwargs):
         local_time = time.time()
@@ -38,10 +40,12 @@ def print_excute_time(func):
         return ret
     return wrapper
 
+
 def get_fileNameExt(filename):
     (fileDir, tempfilename) = os.path.split(filename)
     (shortname, extension) = os.path.splitext(tempfilename)
     return fileDir, shortname, extension
+
 
 @print_excute_time
 def handler(event, context):
@@ -63,19 +67,19 @@ def handler(event, context):
                         creds.accessKeySecret, creds.securityToken)
     oss_client = oss2.Bucket(
         auth, 'oss-%s-internal.aliyuncs.com' % context.region, oss_bucket_name)
-    
+
     input_path = oss_client.sign_url('GET', object_key, 3600)
     fileDir, shortname, extension = get_fileNameExt(object_key)
     gif_path = os.path.join("/tmp", shortname + ".gif")
-    
-    cmd = ["/code/ffmpeg", "-y",  "-ss", ss, "-accurate_seek",
+
+    cmd = ["ffmpeg", "-y",  "-ss", ss, "-accurate_seek",
            "-i", input_path, "-pix_fmt", "rgb24", gif_path]
     if t:
-        cmd = ["/code/ffmpeg", "-y", "-ss", ss, "-t", t,  "-accurate_seek",
+        cmd = ["ffmpeg", "-y", "-ss", ss, "-t", t,  "-accurate_seek",
                "-i", input_path, "-pix_fmt", "rgb24", gif_path]
     else:
         if vframes:
-            cmd = ["/code/ffmpeg", "-y",  "-ss", ss,  "-accurate_seek", "-i",
+            cmd = ["ffmpeg", "-y",  "-ss", ss,  "-accurate_seek", "-i",
                    input_path, "-vframes", vframes, "-y", "-f", "gif", gif_path]
 
     LOGGER.info("cmd = {}".format(" ".join(cmd)))
@@ -88,14 +92,14 @@ def handler(event, context):
         LOGGER.error('output:{}'.format(exc.output))
         LOGGER.error('stderr:{}'.format(exc.stderr))
         LOGGER.error('stdout:{}'.format(exc.stdout))
-    
+
     gif_key = os.path.join(output_dir, fileDir, shortname + ".gif")
 
     oss_client.put_object_from_file(gif_key, gif_path)
 
     LOGGER.info("Uploaded {} to {} ".format(
         gif_path, gif_key))
-    
+
     os.remove(gif_path)
 
     return "ok"

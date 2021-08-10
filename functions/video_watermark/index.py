@@ -36,6 +36,8 @@ filter_complex_args = "overlay=0:0:1"
 '''
 
 # a decorator for print the excute time of a function
+
+
 def print_excute_time(func):
     def wrapper(*args, **kwargs):
         local_time = time.time()
@@ -45,10 +47,12 @@ def print_excute_time(func):
         return ret
     return wrapper
 
+
 def get_fileNameExt(filename):
     (fileDir, tempfilename) = os.path.split(filename)
     (shortname, extension) = os.path.splitext(tempfilename)
     return fileDir, shortname, extension
+
 
 @print_excute_time
 def handler(event, context):
@@ -59,27 +63,27 @@ def handler(event, context):
     output_dir = evt["output_dir"]
     vf_args = evt.get("vf_args", "")
     filter_complex_args = evt.get("filter_complex_args")
-    
+
     if not (vf_args or filter_complex_args):
         assert "at least one of 'vf_args' and 'filter_complex_args' has value"
- 
+
     creds = context.credentials
     auth = oss2.StsAuth(creds.accessKeyId,
                         creds.accessKeySecret, creds.securityToken)
     oss_client = oss2.Bucket(
         auth, 'oss-%s-internal.aliyuncs.com' % context.region, oss_bucket_name)
-    
+
     input_path = oss_client.sign_url('GET', object_key, 3600)
     fileDir, shortname, extension = get_fileNameExt(object_key)
     dst_video_path = os.path.join("/tmp", "watermark_" + shortname + extension)
-    
-    cmd = ["/code/ffmpeg", "-y", "-i", input_path,
+
+    cmd = ["ffmpeg", "-y", "-i", input_path,
            "-vf", vf_args, dst_video_path]
-    
-    if filter_complex_args: # gif
-        cmd = ["/code/ffmpeg", "-y", "-i", input_path, "-ignore_loop", "0",
+
+    if filter_complex_args:  # gif
+        cmd = ["ffmpeg", "-y", "-i", input_path, "-ignore_loop", "0",
                "-i", "/code/logo.gif", "-filter_complex", filter_complex_args, dst_video_path]
-    
+
     LOGGER.info("cmd = {}".format(" ".join(cmd)))
     try:
         subprocess.run(
@@ -95,7 +99,7 @@ def handler(event, context):
     oss_client.put_object_from_file(video_key, dst_video_path)
 
     LOGGER.info("Uploaded {} to {} ".format(dst_video_path, video_key))
-    
+
     os.remove(dst_video_path)
 
     return "ok"

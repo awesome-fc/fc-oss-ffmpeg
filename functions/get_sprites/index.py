@@ -95,13 +95,13 @@ def handler(event, context):
     input_path = oss_client.sign_url('GET', object_key, 3600)
     fileDir, shortname, extension = get_fileNameExt(object_key)
 
-    cmd = ['/code/ffmpeg', '-ss', ss, '-itsoffset', itsoffset, '-y', '-i', input_path,
+    cmd = ['ffmpeg', '-ss', ss, '-itsoffset', itsoffset, '-y', '-i', input_path,
            '-f', 'image2', '-vf', "fps=1/{0},scale={1},tile={2}:padding={3}:color={4}".format(
                interval, scale, tile, padding, color),
            '/tmp/{0}%d.{1}'.format(shortname, dst_type)]
 
     if t:
-        cmd = ['/code/ffmpeg', '-ss', ss, '-itsoffset', itsoffset, '-t', t, '-y', '-i', input_path,
+        cmd = ['ffmpeg', '-ss', ss, '-itsoffset', itsoffset, '-t', t, '-y', '-i', input_path,
                '-f', 'image2', '-vf', "fps=1/{0},scale={1},tile={2}:padding={3}:color={4}".format(
                    interval, scale, tile, padding, color),
                '/tmp/{0}%d.{1}'.format(shortname, dst_type)]

@@ -25,6 +25,8 @@ LOGGER = logging.getLogger()
 '''
 
 # a decorator for print the excute time of a function
+
+
 def print_excute_time(func):
     def wrapper(*args, **kwargs):
         local_time = time.time()
@@ -34,10 +36,12 @@ def print_excute_time(func):
         return ret
     return wrapper
 
+
 def get_fileNameExt(filename):
     (fileDir, tempfilename) = os.path.split(filename)
     (shortname, extension) = os.path.splitext(tempfilename)
     return shortname, extension
+
 
 @print_excute_time
 def handler(event, context):
@@ -54,13 +58,13 @@ def handler(event, context):
         auth, 'oss-%s-internal.aliyuncs.com' % context.region, oss_bucket_name)
 
     shortname, extension = get_fileNameExt(object_key)
-    
+
     transcoded_filepath = os.path.join(
         "/tmp/", "transcoded_" + shortname + dst_type)
-    
+
     input_path = oss_client.sign_url('GET', object_key, 3600)
-    
-    cmd = ["/code/ffmpeg", "-y", "-i", input_path,
+
+    cmd = ["ffmpeg", "-y", "-i", input_path,
            "-preset", "superfast", transcoded_filepath]
     try:
         subprocess.run(
@@ -71,12 +75,12 @@ def handler(event, context):
         LOGGER.error('output:{}'.format(exc.output))
         LOGGER.error('stderr:{}'.format(exc.stderr))
         LOGGER.error('stdout:{}'.format(exc.stdout))
-    
+
     transcoded_key = os.path.join(
         output_dir, "transcoded_" + shortname + dst_type)
-    
+
     oss_client.put_object_from_file(transcoded_key, transcoded_filepath)
-    
+
     LOGGER.info("Uploaded {} to {} ".format(
         transcoded_filepath, transcoded_key))
 
