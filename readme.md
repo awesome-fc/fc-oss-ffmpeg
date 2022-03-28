@@ -32,9 +32,9 @@
 
 实验对象：
 
-- 视频是 89s 的 mov 标清短视频: [480P.mov](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/480P.mov)
+- 视频是 89s 的 mov 标清短视频: [480P.mov](https://images.devsapp.cn/application/ffmpeg-app/480P.mov)
 
-- 音频为 89s 的 mp3 音频: [480P.mp3](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/480P.mp3)
+- 音频为 89s 的 mp3 音频: [480P.mp3](https://images.devsapp.cn/application/ffmpeg-app/480P.mp3)
 
 | 函数            | 内存规格 | 执行时间 | 一次计费(元) | 备注                                                  |
 | --------------- | -------- | -------- | ------------ | ----------------------------------------------------- |
@@ -79,9 +79,9 @@
 
 > 实验视频为是 89s 的 mp4 和 flv 格式的文件视频， 测试视频地址：
 
-> [480P.mp4](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/480P.mp4) [720P.mp4](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/720P.mp4) [1080P.mp4](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/1080P.mov) [4K.mp4](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/4K.mp4)
+> [480P.mp4](https://images.devsapp.cn/application/ffmpeg-app/480P.mp4) [720P.mp4](https://images.devsapp.cn/application/ffmpeg-app/720P.mp4) [1080P.mp4](https://images.devsapp.cn/application/ffmpeg-app/1080P.mov) [4K.mp4](https://images.devsapp.cn/application/ffmpeg-app/4K.mp4)
 
-> [480P.flv](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/480P.flv) [720P.flv](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/720P.flv) [1080P.flv](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/1080P.flv) [4K.flv](https://fc-hz-demo.oss-cn-hangzhou.aliyuncs.com/fnf_video/inputs/4K.flv)
+> [480P.flv](https://images.devsapp.cn/application/ffmpeg-app/480P.flv) [720P.flv](https://images.devsapp.cn/application/ffmpeg-app/720P.flv) [1080P.flv](https://images.devsapp.cn/application/ffmpeg-app/1080P.flv) [4K.flv](https://images.devsapp.cn/application/ffmpeg-app/4K.flv)
 
 > 测试命令: `ffmpeg -i test.flv test.mp4` 和 `ffmpeg -i test.flv test.mp4`
 
